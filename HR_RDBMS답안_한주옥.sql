@@ -1,3 +1,4 @@
+
 --1번
 selecT  ename                                    사원명,
         dno                                      부서번호 
@@ -34,7 +35,6 @@ group by dno
 having round(avg(salary),2) > 2000
 ;
 
-
 -- 6번
 select ename 이름, salary 급여, job 직책, dno 부서번호
 from employee
@@ -66,11 +66,6 @@ where salary in (
 );
 
 --9번
-. 테이블 복사및 alter table 을 사용하여 복사한 원본 테이블과 같은 제약 조건을 추가 하시오 
-   employee 테이블의 모든 컬럼과 값을 복사하여 EMP50 테이블을 생성하시오
-   department 테이블의 모든 컬럼과 값을 복사하여 DEPT50 테이블을 생성하시오. 
-   원본 테이블에 부여된 제약조건을 복사된 테이블에도 부여 하시오 
-
 create table EMP50
 as
 select * from employee;
@@ -80,13 +75,45 @@ as
 select * from department;
 
 desc employee;
-
+desc EMP50;
 desc department;
 
-alter table EMP50  modify eno NOT NULL ; 
+alter table EMP50 
+add constraint PK_EMP50_ENO primary key (ENO) ; 
 
-alter table DEPT50  modify dno NOT NULL ; 
+alter table EMP50 
+add constraint FK_EMP50_DNO foreign key (dno) references dept50(dno); 
 
+alter table DEPT50 
+add constraint PK_DEPT50_DNO primary key (dno) ; 
+
+
+--10번
+--10.1
+insert into EMP50 ( eno, ename, job, manager, hiredate, salary, commission, dno )
+values ( 8181, '홍길동', '사무원', 7788 , sysdate, 1000 , 100 , 20 ); 
+commit;
+--10.2
+selecT * from EMP50 where commission is null;
+update  EMP50 
+set  commission = 50
+where commission is null;
+commit;
+--10.3
+selecT *
+from DEPT50 where dno=40;
+
+update DEPT50
+set dname = '운영부'
+  , loc = '서울'
+where  dno=40;
+commit;
+
+--10.4 
+selecT  * from EMP50 where job ='MANAGER';
+
+delete from EMP50 where job ='MANAGER';
+commit;
 
 
 
