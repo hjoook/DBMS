@@ -33,6 +33,7 @@ select dno, round(avg(salary),2)
 from employee
 group by dno
 having round(avg(salary),2) > 2000
+order by dno desc
 ;
 
 -- 6번
@@ -42,13 +43,14 @@ where salary > (
         -- 전체 평균을 select 하는 쿼리 작성 
         select round ( avg(salary) , 2) from employee        
     )  
-order by salary asc ;  
+order by salary desc ;  
 
 --7번  
 select job 직책, ename 사원이름, e.dno 부서번호, dname 부서명, loc 부서위치
 from emp01 e JOIN dept01 d 
 on e.dno = d.dno
-where job = 'MANAGER'; 
+where job = 'MANAGER'
+order by ename; 
 
 --8번
 create view v_join 
@@ -75,7 +77,6 @@ as
 select * from department;
 
 desc employee;
-desc EMP50;
 desc department;
 
 alter table EMP50 
