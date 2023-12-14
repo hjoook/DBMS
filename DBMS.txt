@@ -1,0 +1,160 @@
+DBMS(DATABASE MANAGEMENT SYSTEM): 데이타베이스 관리 시스템
+   네트워크를 사용해서 여러명이 접속해서 사용되는 데이타베이스
+   서버장비 서버OS(unix, linux, win server)위에 설치, 다중 cpu, 메모리 무제한
+   계정, 보안(권한), 성능(cpu,ram)
+Excel : 개인용 DB
+oracle system, sys  tcp-1521  ; Mac에서는 오라클 설치 안됨(도커=>오라클 이미지 작동)
+MySQL  root         tcp 3306
+MSSQL  sa           tcp 1433
+
+
+
+oracle 설치(server) : 서버장비 (unix/linux windows) 
+sqldeveloper(client) :원격에 설치된 oracle db에 접속해서 명령주는 프로그램 IDE
+  접속 : SQL Developer에서 원격의  SQL Server(TCP 1521)에 접속 설정
+  호스트명 : localHost      => 자신의 컴퓨터
+  포트    : 1521          => 접속 포트
+  SID(DB명) : xe          => 접속할 DB명
+
+  접속게정명 : system 
+  암호     : 1234
+
+  DataBase :xe
+     객체를 관리하는 단위 (폴더) 
+     DB에 존재하는 객체
+          테이블, 인덱스, 함수, 저장프로시져, 트리거, 시퀀스
+
+일반계정 생성  HR / 1234
+
+  create user c##HR idenTIfied by 1234
+  default tablespace USERS
+  temporary tablespace TEMP;
+
+  grant create view to C##HR;;  -- view 생성권한 생성
+
+일반계정 삭제
+drop user c##HR2  
+
+계정의 권한 부여
+connect, resource
+grant RESOURCE, CONNECT to c##HR;
+
+테이블스페이스에서 사용량 할당
+alter USER c##HR QUOTA unlimited on users;
+
+
+
+CRUD : create ,read, update, delete
+
+-- 다른 사용자 테이블에 내용 보기
+select * from "C##HR"."ACCOUNT10";
+
+
+
+sql함수
+   INITCAP	      문자열의 첫번째 문자만 대문자로 변환
+   LOWER	      문자열 전체를 소문자로 변환
+   UPPER	      문자열 전체를 대문자로 변환
+   LENGTH             문자열의 길이를 반환
+  ?LENGTHB            문자열의 바이트 수를 반환
+   CONCAT	      두 문자열을 결합. ||와 동일
+   SUBSTR	      특정 문자 또는 문자열 일부를 추출
+   INSTR	      특정 문자가 출현하는 첫번째 위치 반환
+   LPAD	              오른쪽 정렬 후 왼쪽에 지정한 문자 삽입
+   RPAD	              왼쪽 정렬 후 오른쪽에 지정한 문자 삽입
+   LTRIM	      왼쪽의 지정 문자를 삭제
+   RTRIM	      오른쪽의 지정 문자를 삭제
+
+숫자 함수
+   ROUND	      지정한 자리 이하에서 반올림
+   TRUNC	      지정한 자리 이하에서 절삭(버림)
+   MOD(m, n)	      m을 n으로 나눈 나머지 값
+   CEIL               지정한 값보다 큰 수 중에서 가장 작은 정수
+   FLOOR              지정한 값보다 작은 수 중에서 가장 큰 정수
+
+날짜 함수
+   SYSDATE	      시스템의 현재 날짜 
+   MONTHS_BETWEEN?    날짜와 날짜 사이의 개월을 계산
+   ADD_MONTHS	      날짜에 개월을 더한 날짜 계산
+   NEXT_DAY	      날짜 후의 첫 월요일 날짜를 계산
+   LAST_DAY	      월의 마지막 날짜를 계산
+
+
+
+select  to_char(1234,'B9999.99') 
+,       to_char(1234,'$9999') 
+from dual;
+
+
+group 함수
+ROLLUP은 계층 구조를 사용하여 데이터를 롤업하고 합계를 계산합니다. 주어진 열의 하위 합계 및 총계를 계산할 수 있습니다.
+CUBE는 다차원 큐브 집계를 생성합니다. 주어진 열들에 대해 가능한 모든 조합에 대한 합계를 계산합니다.
+select dno, 
+job ,
+count(*),
+sum(salary)             월급,
+round(avg(salary),2)    평균,
+    max(salary) 최대값,
+    min(salary) 최소값
+from  employee
+--group by dno, job
+group by rollup(dno, job) 
+;
+
+select dno, 
+job ,
+sum(salary)             월급,
+round(avg(salary),2)    평균,
+    max(salary) 최대값,
+    min(salary) 최소값
+from  employee 
+group by cube(dno, job)    -- dno별로 집계, job 별로 집계 전체 집계 각각 출력
+
+
+subQuery : select문 내에 select
+
+제약조건 : 테이블의 컬럼에 들어가는 키, 데이터의 무결성(결함없는 데이터, 원하는 값만)
+primary key
+    테이블의 컬럼에 1번만 넣을 수 있다
+    두개 컬럼을 묶어서 pk를 넣을 수 있다
+    테이블을 생성할때 반드시 pk 이 존재해야 한다 - update ,delete구분해서 pk컬럼을 where조건으로 사용함.
+    특정 컬럼에 중복 된 값을 넣지 못하도록 함.
+    반드시 not null컬럼이어야 함. null을 넣을 수 없다
+    index 가 자동으로 생성된다. 컬럼의 검색을 빠르게 함
+    join 시 on 에서 많이 사용하는 키 컬럼
+
+unique  key
+    컬럼에 중복된 값을 넣지 못하도록 함
+    null을 넣을 수 있다. 단 1번만 넣을 수 있다. not null, null
+    하나의 테이블에 여러번 unique key 를 넣을 수 있다
+    index가 자동으로 생성됨. join 시 on에 사용됨
+foreign key
+    다른 테이블(부모 테이블)의 특정 컬럼을 참조해서 값을 넣도록 함.
+    foreign key 가 참조하는 컬럼은 부모테이블의 primay key , unique key 컬럼
+not null
+    컬럼에 null을  넣을 수 없도록 하는 제약 조건
+check  
+    컬럼에 조건을 넣어서 내게 원하는 값만 넣을수 있도록 함
+    월 컬럼에 1~12까지 넣을수 있도록
+default
+    제약 조건은 아니지만 제약 조건처럼 사용됨
+    컬럼에 값을 넣지 않으면 default 로 설정된 값이 등록됨
+join
+    여러 테이블의 컬럼을 출력할때 join 을 사용해서 하나의 테으블
+    두 테이블의 공통 키 컬럼을 확인
+    equi join 오라클에서만 작동하는 jon 구문
+    ansi join 모든 dbms에서 공통으로 사용되는 join 구문
+    inner join
+    outer join
+	left outer join
+	right outer join
+	full outer join
+        Self Join  자신의 테이블을 join 자신의 테이블을 별칭이름으로 가상으로 생성해서 join
+	           조직도출력, 직금 상사를 바로 출력할때 사용
+	Cross Join
+
+ 
+
+services.msc
+
+selecT * from user_constraints where table_name in ('EMP01','DEPT01');
